@@ -44,6 +44,7 @@ end
 
 function states.golem:enter(data)
     data.golem_fsm:wake()
+    data.control_ui.text = "<- :: move left\n-> :: move right\nr :: release\nspace :: jump"
 end
 
 function states.golem.should_jump(data)

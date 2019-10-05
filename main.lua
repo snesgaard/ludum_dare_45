@@ -60,6 +60,7 @@ function level_from_index(index)
 end
 
 function love.load()
+    gfx.setBackgroundColor(0.3, 0.3, 0.5)
     level_from_index(start_index)
     __draw_bodies = false
     _DebugSettings.DrawOnTop = false
