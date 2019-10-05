@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.1.4" orientation="orthogonal" renderorder="right-down" width="13" height="10" tilewidth="32" tileheight="32" infinite="0" nextobjectid="8">
+ <tileset firstgid="1" source="../tileset/tilesA.tsx"/>
+ <layer name="collision" width="13" height="10">
+  <data encoding="csv">
+1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,1,1,1,1,1,1,0,0,1,1,1,
+1,0,0,0,0,0,0,0,0,0,0,0,1,
+1,1,1,0,0,0,0,0,0,0,0,0,1,
+1,0,0,1,1,0,0,0,0,0,0,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1
+</data>
+ </layer>
+ <objectgroup name="actor_init">
+  <object id="1" name="golem" type="golem" x="304.333" y="266.333" width="22" height="20"/>
+  <object id="3" name="ghost" type="ghost" x="115" y="107.333" width="16.3333" height="19"/>
+  <object id="5" name="wallA" type="wall" x="202" y="33.3333" width="11.6667" height="95" visible="0"/>
+  <object id="6" name="goalA" type="goal" x="340.667" y="111.667" width="16.6667" height="15.3333"/>
+ </objectgroup>
+</map>

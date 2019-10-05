@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.1.4" orientation="orthogonal" renderorder="right-down" width="13" height="10" tilewidth="32" tileheight="32" infinite="0" nextobjectid="8">
+ <tileset firstgid="1" source="../tileset/tilesA.tsx"/>
+ <layer name="Tile Layer 1" width="13" height="10">
+  <data encoding="csv">
+1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,1,
+1,1,0,0,0,0,0,0,0,0,0,0,1,
+1,1,0,0,0,0,0,0,1,0,0,0,1,
+1,1,0,0,0,0,0,1,0,0,0,0,1,
+1,1,0,0,0,0,1,0,0,0,0,0,1,
+1,1,0,0,0,1,0,0,0,0,0,0,1,
+1,1,0,0,1,0,0,0,0,0,0,0,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1
+</data>
+ </layer>
+ <objectgroup name="actor_init">
+  <object id="1" name="ghostA" type="ghost" x="49" y="66" width="11" height="19"/>
+  <object id="4" name="golemA" type="golem" x="93" y="257" width="19" height="23"/>
+  <object id="5" name="goalA" type="goal" x="327" y="264" width="24" height="16"/>
+  <object id="6" name="wallA" type="wall" x="286" y="139" width="99" height="17"/>
+  <object id="7" name="wallB" type="wall" x="51" y="131" width="125" height="108" visible="0"/>
+ </objectgroup>
+</map>

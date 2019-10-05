@@ -1,47 +1,118 @@
 require "nodeworks"
 require "lovedebug"
+require "bumpdebug"
+local level_io = require "level"
 
-local function getCellRect(world, cx,cy)
-  local cellSize = world.cellSize
-  local l,t = world:toWorld(cx,cy)
-  return l,t,cellSize,cellSize
-end
+levels_paths = list(
+    "art/maps/build/levelB.lua", "art/maps/build/levelC.lua",
+    "art/maps/build/levelD.lua", "art/maps/build/levelE.lua"
+)
+start_index = 1
+level_index = 0
 
-function draw_world(world)
-    local cellSize = world.cellSize
-    local font = love.graphics.getFont()
-    local fontHeight = font:getHeight()
-    local topOffset = (cellSize - fontHeight) / 2
-    for cy, row in pairs(world.rows) do
-        for cx, cell in pairs(row) do
-            local l,t,w,h = getCellRect(world, cx,cy)
-            local intensity = cell.itemCount * 12 + 16
-            love.graphics.setColor(255,255,255,intensity)
-            love.graphics.rectangle('line', l,t,w,h)
-            love.graphics.setColor(255,255,255, 64)
-            love.graphics.printf(cell.itemCount, l, t+topOffset, cellSize, 'center')
-            love.graphics.setColor(255,255,255,10)
-            love.graphics.rectangle('line', l,t,w,h)
-        end
+function level_from_index(index)
+    level_index = index
+    local path = levels_paths[level_index]
+    if not path then
+        level = nil
+        actor_layer = nil
+        control_fsm = nil
+        end_time = love.timer.getTime()
+        return
     end
+
+    level = level_io.load(path)
+    actor_layer = level.layers["actor_layer"]
+
+    local actor_init = {}
+
+    function actor_init.ghost(level, obj)
+        local pos = vec2(obj.x + obj.width / 2, obj.y + obj.height)
+        ghost = actor_layer:actor("actor.player:ghost")
+        ghost.body:set(pos:unpack())
+    end
+
+    function actor_init.golem(level, obj)
+        local pos = vec2(obj.x + obj.width / 2, obj.y + obj.height)
+        golem = actor_layer:actor("actor.player:golem")
+        golem.body:set(pos:unpack())
+    end
+
+    function actor_init.wall(level, obj)
+        if not obj.visible then return end
+
+        actor_layer:actor(
+            "actor.ghost_wall", obj.x, obj.y, obj.width, obj.height
+        )
+    end
+
+    function actor_init.goal(level, obj)
+        goal = actor_layer:actor(
+            "actor.goal", obj.x, obj.y, obj.width, obj.height
+        )
+    end
+    control_ui = Node.create(require "nodes.text_box", 300)
+    control_ui.__transform.pos = vec2(20, 20)
+
+    level_io.actor_init(level, actor_init)
+    control_fsm = Node.create(fsm, require("control_fsm")(ghost, golem, control_ui))
+
 end
 
 function love.load()
-    world = bump.newWorld()
-    map = sti("art/maps/build/test.lua", { "bump" })
-    map:bump_init(world)
-    player = {name="yo", x = 100, y = 150, w = 10, h = 10}
-    world:add(player, player.x, player.y, player.w, player.h)
+    level_from_index(start_index)
+    __draw_bodies = false
+    _DebugSettings.DrawOnTop = false
+    start_time = love.timer.getTime()
+end
+
+function level_complete(goal, golem, ghost)
+    for _, col in pairs(golem.col) do
+        if col.other == goal.body then return true end
+    end
+
+    for _, col in pairs(ghost.col) do
+        if col.other == goal.body then return true end
+    end
 end
 
 function love.update(dt)
-    player.x, player.y = world:move(player, player.x + 0, player.y + 10)
+    if level then
+        level:update(dt)
+        control_fsm:update(dt)
+    end
+    event:spin()
+
+    if level and level_complete(goal.body, golem.body, ghost.body) then
+        level_from_index(level_index + 1)
+    end
+end
+
+function love.keypressed(key, ...)
+    if key == "escape" and level then
+        level_from_index(level_index)
+    end
+    if control_fsm then
+        control_fsm:keypressed(key, ...)
+    end
 end
 
 function love.draw()
-    gfx.setColor(1, 1, 1)
-    map:draw()
-    draw_world(world)
-    gfx.setColor(0, 1, 0)
-    gfx.rectangle("line", player.x, player.y, player.w, player.h)
+    if level then
+        level:draw(0, 0, 2, 2)
+    else
+        local msg = string.format(
+            "YOU WIN! Took only %fs", end_time - start_time
+        )
+        gfx.print(msg)
+    end
+    --level:bump_draw()
+    if __draw_bodies then
+        draw_world(level.world)
+    end
+    if control_ui then
+        control_ui:draw()
+    end
+    --gfx.setColor(0, 1, 0)
+    --gfx.rectangle("line", player.x, player.y, player.w, player.h)
 end

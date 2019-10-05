@@ -1,4 +1,4 @@
-sprites=$(addprefix ./sprites/,)
+sprites=$(addprefix ./sprites/, tilesA.aseprite)
 jsons=$(addprefix ./build/, $(notdir $(sprites:.aseprite=.json)))
 atlas=./atlas.png
 aseprite=~/.steam/steam/steamapps/common/Aseprite/aseprite
