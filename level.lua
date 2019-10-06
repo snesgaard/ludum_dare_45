@@ -6,7 +6,7 @@ function level.load(path, actor_init)
     level:bump_init(world)
     level.world = world
 
-    local actor_layer = level:addCustomLayer("actor_layer")
+    local actor_layer = level:addCustomLayer("actor_layer",1)
     actor_layer.root = Node.create()
 
     function actor_layer:update(dt)
@@ -29,6 +29,17 @@ function level.load(path, actor_init)
 
     local actor_init_layer = level.layers["actor_init"]
     actor_init_layer.visible = false
+
+    local bg_layer = level:addCustomLayer("bg_layer",1)
+
+    function bg_layer:draw()
+        gfx.push()
+        gfx.origin()
+        gfx.setColor(0.3, 0.3, 0.5)
+        gfx.rectangle("fill", 0, 0, gfx.getWidth(), gfx.getHeight())
+        gfx.setColor(1, 1, 1)
+        gfx.pop()
+    end
 
     return level
 end

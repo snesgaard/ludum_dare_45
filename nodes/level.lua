@@ -1,6 +1,7 @@
 local level = {}
 
 function level.load(path)
+    log.info("JASHDJKHASDJK")
     local world = bump.newWorld()
     local level = sti(path, { "bump" })
     level:bump_init(world)
@@ -16,6 +17,13 @@ function level.load(path)
     function actor_layer:draw()
         self.root:draw()
     end
+
+    table.sort(level.layers, function(a, b)
+        print(a.type, b.type)
+        local va = a.type == "customlayer" and 1 or 2
+        local vb = b.type == "customlayer" and 1 or 2
+        return va > vb
+    end)
 
     return level
 end

@@ -5,7 +5,8 @@ local level_io = require "level"
 
 levels_paths = list(
     "art/maps/build/levelB.lua", "art/maps/build/levelC.lua",
-    "art/maps/build/levelD.lua", "art/maps/build/levelE.lua"
+    "art/maps/build/levelD.lua", "art/maps/build/levelE.lua",
+    "art/maps/build/levelF.lua"
 )
 start_index = 1
 level_index = 0
@@ -41,9 +42,17 @@ function level_from_index(index)
     function actor_init.wall(level, obj)
         if not obj.visible then return end
 
-        actor_layer:actor(
+        local actor = actor_layer:actor(
             "actor.ghost_wall", obj.x, obj.y, obj.width, obj.height
         )
+
+        if obj.properties.path then
+            for _, other in ipairs(level.layers.actor_init.objects) do
+                if other.name == obj.properties.path then
+                    actor:setpath(other)
+                end
+            end
+        end
     end
 
     function actor_init.goal(level, obj)
@@ -52,7 +61,7 @@ function level_from_index(index)
         )
     end
     control_ui = Node.create(require "nodes.text_box", 300)
-    control_ui.__transform.pos = vec2(20, 20)
+    control_ui.__transform.pos = vec2(gfx.getWidth() - 220, 20)
 
     level_io.actor_init(level, actor_init)
     control_fsm = Node.create(fsm, require("control_fsm")(ghost, golem, control_ui))
@@ -60,7 +69,7 @@ function level_from_index(index)
 end
 
 function love.load()
-    gfx.setBackgroundColor(0.3, 0.3, 0.5)
+    gfx.setBackgroundColor(0, 0, 0, 0)
     level_from_index(start_index)
     __draw_bodies = false
     _DebugSettings.DrawOnTop = false
@@ -78,6 +87,7 @@ function level_complete(goal, golem, ghost)
 end
 
 function love.update(dt)
+    tween.update(dt)
     if level then
         level:update(dt)
         control_fsm:update(dt)
