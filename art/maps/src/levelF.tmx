@@ -19,7 +19,7 @@
   <object id="1" name="ghost" type="ghost" x="33.6667" y="268.667" width="21" height="19"/>
   <object id="3" name="golem" type="golem" x="62" y="269" width="22" height="18.3333"/>
   <object id="4" name="goal" type="goal" x="344.167" y="139.833" width="23.3333" height="18.6667"/>
-  <object id="8" name="wallA" type="wall" x="277" y="103.5" width="16.5" height="99.5">
+  <object id="8" name="wallA" type="wall" x="277" y="97.5" width="16.5" height="158.5">
    <properties>
     <property name="path" value="pathA"/>
    </properties>

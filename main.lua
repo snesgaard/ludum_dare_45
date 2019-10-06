@@ -8,7 +8,7 @@ levels_paths = list(
     "art/maps/build/levelD.lua", "art/maps/build/levelE.lua",
     "art/maps/build/levelF.lua", "art/maps/build/levelG.lua"
 )
-start_index = 6
+start_index = 1
 level_index = 0
 
 function level_from_index(index)
@@ -20,6 +20,8 @@ function level_from_index(index)
         actor_layer = nil
         control_fsm = nil
         end_time = love.timer.getTime()
+        timer_ui = nil
+        control_ui = nil
         return
     end
 
@@ -65,9 +67,11 @@ function level_from_index(index)
     control_ui = Node.create(require "nodes.text_box", 300)
     control_ui.__transform.pos = vec2(gfx.getWidth() - 220, 20)
 
+    timer_ui = Node.create(require "nodes.text_box", 300)
+    timer_ui.__transform.pos = vec2(50, 20)
+
     level_io.actor_init(level, actor_init)
     control_fsm = Node.create(fsm, require("control_fsm")(ghost, golems, control_ui))
-
 end
 
 function love.load()
@@ -80,8 +84,10 @@ function love.load()
 end
 
 function level_complete(goal, golem, ghost)
-    for _, col in pairs(golem.col) do
-        if col.other == goal.body then return true end
+    for _, golem in ipairs(golems) do
+        for _, col in pairs(golem.body.col) do
+            if col.other == goal.body then return true end
+        end
     end
 
     for _, col in pairs(ghost.col) do
@@ -99,6 +105,12 @@ function love.update(dt)
 
     if level and level_complete(goal.body, golem.body, ghost.body) then
         level_from_index(level_index + 1)
+    end
+
+    if timer_ui then
+        local time = love.timer.getTime()
+        local dt = time - start_time
+        timer_ui.text = string.format("%fs", dt)
     end
 end
 
@@ -126,6 +138,9 @@ function love.draw()
     end
     if control_ui then
         control_ui:draw()
+    end
+    if timer_ui then
+        timer_ui:draw()
     end
     --gfx.setColor(0, 1, 0)
     --gfx.rectangle("line", player.x, player.y, player.w, player.h)
