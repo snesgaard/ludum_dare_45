@@ -71,9 +71,10 @@ function level_from_index(index)
 end
 
 function love.load()
+    log.level = "info"
     gfx.setBackgroundColor(0, 0, 0, 0)
     level_from_index(start_index)
-    __draw_bodies = true
+    __draw_bodies = false
     _DebugSettings.DrawOnTop = false
     start_time = love.timer.getTime()
 end

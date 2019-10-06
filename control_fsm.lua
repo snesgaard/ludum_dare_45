@@ -31,10 +31,6 @@ end
 
 function is_golem(col, golems)
     for i, g in ipairs(golems) do
-        print(g.body.body, col.other)
-    end
-    for key, val in pairs(table) do print(key, val) end
-    for i, g in ipairs(golems) do
         if g.body.body == col.other then return i end
     end
 end
@@ -50,7 +46,6 @@ end
 function states.ghost:keypressed(data, key)
     if key == "r" then
         local index = states.ghost.can_possess(data)
-        print(index)
         if index then return self:possess(index) end
     end
 end

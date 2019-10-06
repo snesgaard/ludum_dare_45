@@ -28,7 +28,6 @@ function particle_node:create(w, h)
 
     local im = gfx.prerender(4, 10, function(w, h)
         local rx, ry = w * 0.5, h * 0.5
-        print(rx, ry)
         gfx.ellipse("fill", rx, ry, rx, ry)
     end)
 
