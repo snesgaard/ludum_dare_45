@@ -29,21 +29,45 @@ function states.ghost:exit(data)
     data.ghost.body.sprite.hidden = true
 end
 
+function is_golem(col, golems)
+    for i, g in ipairs(golems) do
+        print(g.body.body, col.other)
+    end
+    for key, val in pairs(table) do print(key, val) end
+    for i, g in ipairs(golems) do
+        if g.body.body == col.other then return i end
+    end
+end
+
 function states.ghost.can_possess(data)
     local body = data.ghost.body
     for i, col in ipairs(body.col) do
-        if col.other == data.golem.body.body then return true end
+        local index = is_golem(col, data.golems)
+        if index then return index end
     end
 end
 
 function states.ghost:keypressed(data, key)
-    if key == "r" and states.ghost.can_possess(data) then
-        return self:possess()
+    if key == "r" then
+        local index = states.ghost.can_possess(data)
+        print(index)
+        if index then return self:possess(index) end
     end
 end
 
-function states.golem:enter(data)
-    data.golem_fsm:wake()
+local function get_golem_fsm(data, index)
+    index = index or data.golem_index
+    return data.golem_fsm[index]
+end
+
+local function get_golem(data, index)
+    index = index or data.golem_index
+    return data.golems[index]
+end
+
+function states.golem:enter(data, index)
+    data.golem_index = index
+    get_golem_fsm(data):wake()
     data.control_ui.text = "<- :: move left\n-> :: move right\nr :: release\nspace :: jump"
 end
 
@@ -57,7 +81,7 @@ function states.golem.should_jump(data)
 end
 
 function states.golem:__update(data, dt)
-    if data.golem.body:on_ground() then
+    if get_golem(data).body:on_ground() then
         data.ground_time = love.timer.getTime()
     end
 
@@ -69,21 +93,21 @@ function states.golem:__update(data, dt)
     end
 
     if x > 0 then
-        data.golem.body.sprite.__transform.scale.x = 1
+        get_golem(data).body.sprite.__transform.scale.x = 1
     elseif x < 0 then
-        data.golem.body.sprite.__transform.scale.x = -1
+        get_golem(data).body.sprite.__transform.scale.x = -1
     end
 
-    data.golem.body.speed.x = x
+    get_golem(data).body.speed.x = x
     if self.should_jump(data) then
         data.ground_time = nil
         data.jump_time = nil
-        data.golem.body.speed.y = -300
+        get_golem(data).body.speed.y = -300
     end
 end
 
 function states.golem.on_ground(data)
-    local body = data.golem.body
+    local body = get_golem(data).body
     for _, col in ipairs(body.col) do
         if col.type == "slide" and vec2(0, -1):dot(col.normal) > 0.9 then
             return true
@@ -100,15 +124,16 @@ function states.golem:keypressed(data, key)
 end
 
 function states.golem:exit(data)
-    data.golem.body.speed.x = 0
-    data.golem_fsm:leave()
-    data.ghost.body:set(data.golem.body.__transform.pos:unpack())
-    data.ghost.body.speed.x = data.golem.body.speed.x
+    local golem = get_golem(data)
+    golem.body.speed.x = 0
+    get_golem_fsm(data):leave()
+    data.ghost.body:set(golem.body.__transform.pos:unpack())
+    data.ghost.body.speed.x = golem.body.speed.x
     data.ghost.body.speed.y = -300
-    data.ghost.body.sprite.__transform.x = data.golem.body.sprite.__transform.x
+    data.ghost.body.sprite.__transform.x = golem.body.sprite.__transform.x
 end
 
-return function(ghost, golem, control_ui)
+return function(ghost, golems, control_ui)
     return {
         states=states,
         edges={
@@ -118,14 +143,19 @@ return function(ghost, golem, control_ui)
         methods={
             keypressed = function() end,
         },
-        data={ghost=ghost, golem=golem, control_ui=control_ui},
+        data={
+            ghost=ghost, golems=golems, control_ui=control_ui
+        },
         init="ghost",
         create = function(self, data)
-            data.golem_fsm = data.golem_fsm or self:child(
-                fsm, require("actor.golem_fsm")(
-                    data.golem.body.sprite, data.golem.body
+            data.golem_fsm = list()
+            for i, golem in ipairs(data.golems) do
+                data.golem_fsm[i] = self:child(
+                    fsm, require("actor.golem_fsm")(
+                        golem.body.sprite, golem.body
+                    )
                 )
-            )
+            end
         end
     }
 end

@@ -6,13 +6,14 @@ local level_io = require "level"
 levels_paths = list(
     "art/maps/build/levelB.lua", "art/maps/build/levelC.lua",
     "art/maps/build/levelD.lua", "art/maps/build/levelE.lua",
-    "art/maps/build/levelF.lua"
+    "art/maps/build/levelF.lua", "art/maps/build/levelG.lua"
 )
-start_index = 1
+start_index = 6
 level_index = 0
 
 function level_from_index(index)
     level_index = index
+    golems = {}
     local path = levels_paths[level_index]
     if not path then
         level = nil
@@ -37,6 +38,7 @@ function level_from_index(index)
         local pos = vec2(obj.x + obj.width / 2, obj.y + obj.height)
         golem = actor_layer:actor("actor.player:golem")
         golem.body:set(pos:unpack())
+        table.insert(golems, golem)
     end
 
     function actor_init.wall(level, obj)
@@ -64,14 +66,14 @@ function level_from_index(index)
     control_ui.__transform.pos = vec2(gfx.getWidth() - 220, 20)
 
     level_io.actor_init(level, actor_init)
-    control_fsm = Node.create(fsm, require("control_fsm")(ghost, golem, control_ui))
+    control_fsm = Node.create(fsm, require("control_fsm")(ghost, golems, control_ui))
 
 end
 
 function love.load()
     gfx.setBackgroundColor(0, 0, 0, 0)
     level_from_index(start_index)
-    __draw_bodies = false
+    __draw_bodies = true
     _DebugSettings.DrawOnTop = false
     start_time = love.timer.getTime()
 end
